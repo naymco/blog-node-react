@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
 const ArticleSchema = new mongoose.Schema({
+  id: String,
+  userId: String,
   title: {
     type: String,
     required: true
@@ -16,4 +18,5 @@ const ArticleSchema = new mongoose.Schema({
 });
 
 const Article = mongoose.model("article", ArticleSchema);
+
 module.exports = Article;

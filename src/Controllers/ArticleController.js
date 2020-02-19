@@ -1,4 +1,6 @@
 const Article = require("../Models/Article");
+const User = require("../Models/Users");
+const ObjectId = require("mongodb").ObjectID;
 
 const index = (req, res) => {
   Article.find({})
@@ -59,11 +61,66 @@ const find = (req, res, next) => {
     });
 };
 
+const postArticleUser = (req, res) => {
+  let title = new RegExp(req.body.title, "i");
+  // console.log(req.params.userId);
+  let userId = ObjectId(req.params.userId);
+  console.log(userId);
+
+  User.findOne({ _id: userId }).then((user, error) => {
+    // console.log("uff...", user);
+    if (!user)
+      return res.status(404).send({ message: "El ususario no existe" });
+    if (error) return res.status(500).send({ message: "NOT FOUND", error });
+
+    new Article({
+      userId: user.username,
+      title: req.body.title,
+      content: req.body.content
+    })
+      .save()
+      .then(article => {
+        console.log(article);
+        if (req.body.error) return res.status(501).send({ error });
+        if (!article) return res.status(404).send({ message: "NOT FOUND" });
+        return res.status(200).send({ message: "Articulo guardado", article });
+      });
+  });
+};
+
+const getArticleAuthor = (req, res) => {
+  // let titleArticle = new RegExp(req.body.title, "i");
+  let author = ObjectId(req.params.value);
+  console.log("soy un: ", author);
+
+  User.find({ id: author }, (error, userId) => {
+    console.log("uff", userId);
+    if (error)
+      return res
+        .status(500)
+        .send({ message: "Error al guardar los datos: ", error });
+
+    let articleAuthor = userId;
+    //let articleAuthId = articleAuthor;
+    console.log(articleAuthor);
+
+    Article.find({ userId: articleAuthor }, (error, article) => {
+      // console.log(error);
+      if (error) return res.status(500).send("Error en la busqueda: ", error);
+      if (!articleAuthor)
+        return res.status(404).send({ message: "No existe ese usuario" });
+      return res.status(200).send(article);
+    });
+  });
+};
+
 module.exports = {
   index,
   show,
   create,
   update,
   remove,
-  find
+  find,
+  getArticleAuthor,
+  postArticleUser
 };
