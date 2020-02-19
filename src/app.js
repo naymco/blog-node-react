@@ -1,13 +1,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
+// Routes
+const articleRoutes = require("./Routes/ArticleRoutes");
+
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use("/", (req, res) => {
-  return res.send("hola mundo");
-});
+app.use("/articles", articleRoutes);
 
 module.exports = app;

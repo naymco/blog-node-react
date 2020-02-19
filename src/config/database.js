@@ -12,9 +12,10 @@ module.exports = {
         useCreateIndex: true
       })
       .then(con => {
+        // console.log(con);
         this.connection = con;
         console.log("Conectado a db de forma correcta");
       })
-      .catch(error => console.log("Ocurrió un error" + error));
+      .catch(error => console.log("Ocurrió un error", error));
   }
 };
