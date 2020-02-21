@@ -1,22 +1,51 @@
 const Article = require("../Models/Article");
 const User = require("../Models/Users");
+const Comment = require("../Models/Comments");
+
 const ObjectId = require("mongodb").ObjectID;
 
 const index = (req, res) => {
   Article.find({})
     .then(articles => {
-      console.log(articles);
       if (articles.length) return res.status(200).send({ articles });
-      return res.status(204).send({ message: "No hay contenido disponible" });
+      if (!articles)
+        return res.status(204).send({ message: "No hay contenido disponible" });
+
+      return res.status(201).send({ articles });
     })
     .catch(error => res.status(501).send({ error }));
 };
 
 const show = (req, res) => {
-  if (req.body.error) return res.status(501).send({ error });
-  if (!req.body.articles) return res.status(404).send({ message: "NOT FOUND" });
-  let articles = req.body.articles;
-  return res.status(201).send({ articles });
+  if (req.body.error)
+    return res.status(501).send({ message: "Hubo un error", error });
+  if (!req.body.article)
+    return res.status(404).send({ message: "NOT FOUND ups" });
+  let article = req.body.article;
+
+  for (let i = 0; i < article.length; i++) {
+    Comment.find({ articleId: article[i]._id })
+      .then((comment, error) => {
+        if (error) return res.status(500).send("Hubo un error: ", error);
+        if (!comment)
+          return res
+            .status(204)
+            .send({ message: "No hay comentarios, escribe uno" });
+        if (comment.length === 0)
+          return res
+            .status(501)
+            .send({ article, message: "No hay comentarios, escribe uno" });
+
+        Article.find({ _id: comment[i].articleId }).then((article, error) => {
+          if (error)
+            return res
+              .status(204)
+              .send({ error, comment: "No hay comentarios" });
+          return res.status(200).send({ article, comment });
+        });
+      })
+      .catch(error => res.status(501).send({ error: error }));
+  }
 };
 
 const create = (req, res) => {
@@ -51,7 +80,8 @@ const find = (req, res, next) => {
   query[req.params.key] = req.params.value;
   Article.find(query)
     .then(article => {
-      if (!article.length) return next();
+      if (!article.length)
+        return res.status(501).send({ message: "Hubo un error" });
       req.body.article = article;
       return next();
     })
@@ -62,7 +92,7 @@ const find = (req, res, next) => {
 };
 
 const postArticleUser = (req, res) => {
-  let title = new RegExp(req.body.title, "i");
+  // let title = new RegExp(req.body.title, "i");
   // console.log(req.params.userId);
   let userId = ObjectId(req.params.userId);
   console.log(userId);
