@@ -92,13 +92,10 @@ const find = (req, res, next) => {
 };
 
 const postArticleUser = (req, res) => {
-  // let title = new RegExp(req.body.title, "i");
-  // console.log(req.params.userId);
   let userId = ObjectId(req.params.userId);
   console.log(userId);
 
   User.findOne({ _id: userId }).then((user, error) => {
-    // console.log("uff...", user);
     if (!user)
       return res.status(404).send({ message: "El ususario no existe" });
     if (error) return res.status(500).send({ message: "NOT FOUND", error });
@@ -110,7 +107,6 @@ const postArticleUser = (req, res) => {
     })
       .save()
       .then(article => {
-        console.log(article);
         if (req.body.error) return res.status(501).send({ error });
         if (!article) return res.status(404).send({ message: "NOT FOUND" });
         return res.status(200).send({ message: "Articulo guardado", article });
@@ -119,7 +115,6 @@ const postArticleUser = (req, res) => {
 };
 
 const getArticleAuthor = (req, res) => {
-  // let titleArticle = new RegExp(req.body.title, "i");
   let author = ObjectId(req.params.value);
   console.log("soy un: ", author);
 
@@ -131,11 +126,8 @@ const getArticleAuthor = (req, res) => {
         .send({ message: "Error al guardar los datos: ", error });
 
     let articleAuthor = userId;
-    //let articleAuthId = articleAuthor;
-    console.log(articleAuthor);
 
     Article.find({ userId: articleAuthor }, (error, article) => {
-      // console.log(error);
       if (error) return res.status(500).send("Error en la busqueda: ", error);
       if (!articleAuthor)
         return res.status(404).send({ message: "No existe ese usuario" });

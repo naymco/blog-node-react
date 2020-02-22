@@ -21,6 +21,7 @@ const login = (req, res) => {
           if (match) {
             payload = {
               id: user._id,
+              role: user.role,
               username: user.username,
               email: user.email
             };
